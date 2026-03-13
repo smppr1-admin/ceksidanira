@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cek Nilai Siswa</title>
+
+<style>
+
+body{
+font-family:Arial;
+max-width:900px;
+margin:auto;
+padding:20px;
+background:#f4f4f4;
+}
+
+h2{
+text-align:center;
+}
+
+input{
+width:100%;
+padding:10px;
+font-size:16px;
+margin-bottom:10px;
+box-sizing: border-box;
+}
+
+.list{
+padding:8px;
+border-bottom:1px solid #ccc;
+cursor:pointer;
+background:white;
+}
+
+.list:hover{
+background:#eee;
+}
+
+.table-container {
+overflow-x: auto;
+margin: 10px 0;
+background: white;
+border-radius: 4px;
+}
+
+table{
+border-collapse:collapse;
+width:100%;
+background:white;
+min-width: 800px;
+}
+
+th{
+background:#c40000;
+color:white;
+padding:8px;
+border:1px solid #ccc;
+white-space: nowrap;
+}
+
+td{
+border:1px solid #ccc;
+padding:8px;
+text-align:center;
+white-space: nowrap;
+}
+
+.semester{
+margin-top:25px;
+font-size:18px;
+font-weight:bold;
+}
+
+button{
+padding:10px 15px;
+margin:10px 5px;
+border:none;
+cursor:pointer;
+border-radius: 4px;
+font-size: 14px;
+}
+
+@media (max-width: 600px) {
+body {
+padding: 10px;
+}
+
+button {
+width: 100%;
+margin: 5px 0;
+}
+
+.btn-benar, .btn-salah {
+display: block;
+width: 100%;
+}
+
+h2 {
+font-size: 20px;
+}
+
+.semester {
+font-size: 16px;
+}
+}
+
+.btn-benar{
+background:green;
+color:white;
+}
+
+.btn-salah{
+background:orange;
+color:white;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h2>Cek Nilai Siswa</h2>
+
+<input id="search" placeholder="Ketik NIS atau Nama">
+
+<div id="suggest"></div>
+
+<div id="hasil"></div>
+
+<script>
+
+let database=[]
+
+// ambil data json
+fetch("data.json")
+.then(r=>r.json())
+.then(data=>{
+database=data
+})
+
+
+// SEARCH
+document.getElementById("search").addEventListener("input",function(){
+
+let k=this.value.toLowerCase()
+
+let hasil=database.filter(s=>
+s.nama.toLowerCase().includes(k) ||
+s.nis.includes(k)
+)
+
+let html=""
+
+hasil.slice(0,5).forEach(s=>{
+
+html+=`
+<div class="list" onclick="tampil('${s.nis}')">
+${s.nama} - ${s.nis}
+</div>
+`
+
+})
+
+document.getElementById("suggest").innerHTML=html
+
+})
+
+
+// TAMPILKAN NILAI
+function tampil(nis){
+
+let s=database.find(x=>x.nis==nis)
+
+let html=`<h3>${s.nama} - Kelas ${s.kelas}</h3>`
+
+for(let smt in s.nilai){
+
+let n=s.nilai[smt]
+
+html+=`
+
+<div class="semester">${smt}</div>
+
+<div class="table-container">
+
+<table>
+
+<tr>
+<th>AGM</th>
+<th>PKN</th>
+<th>BHS_INDO</th>
+<th>MTK</th>
+<th>IPA</th>
+<th>IPS</th>
+<th>BHS_INGG</th>
+<th>SB</th>
+<th>PJOK</th>
+<th>IT</th>
+</tr>
+
+<tr>
+<td>${n.AGM}</td>
+<td>${n.PKN}</td>
+<td>${n.BHS_INDO}</td>
+<td>${n.MTK}</td>
+<td>${n.IPA}</td>
+<td>${n.IPS}</td>
+<td>${n.BHS_INGG}</td>
+<td>${n.SB}</td>
+<td>${n.PJOK}</td>
+<td>${n.IT}</td>
+</tr>
+
+</table>
+
+</div>
+
+`
+
+}
+
+html+=`
+
+<div style="text-align:center;margin-top:20px">
+
+<button class="btn-benar" onclick="nilaiBenar('${s.nis}','${s.nama}')">
+Nilai Sudah Benar
+</button>
+
+<button class="btn-salah" onclick="nilaiSalah('${s.nis}','${s.nama}')">
+Masih ada Nilai yang Salah
+</button>
+
+</div>
+
+`
+
+document.getElementById("hasil").innerHTML=html
+document.getElementById("suggest").innerHTML=""
+
+}
+
+
+
+// GOOGLE FORM
+
+function nilaiBenar(nis,nama){
+
+let url="https://docs.google.com/forms/d/e/1FAIpQLSdNIez_3PlAR1uYAfMbcUgGOGUVrDr5-nryJpT6Pekfs8-hTA/viewform?"
+
+url+="&entry.1357675911="+encodeURIComponent(nis)
+url+="&entry.171473448="+encodeURIComponent(nama)
+url+="&entry.1088011305="+encodeURIComponent("Nilai Sudah Benar")
+
+window.open(url,"_blank")
+
+}
+
+
+function nilaiSalah(nis,nama){
+
+let url="https://docs.google.com/forms/d/e/1FAIpQLSdNIez_3PlAR1uYAfMbcUgGOGUVrDr5-nryJpT6Pekfs8-hTA/viewform?"
+
+url+="&entry.1357675911="+encodeURIComponent(nis)
+url+="&entry.171473448="+encodeURIComponent(nama)
+url+="&entry.1088011305="+encodeURIComponent("Masih ada Nilai yang Salah")
+
+window.open(url,"_blank")
+
+}
+
+</script>
+
+</body>
+</html>
